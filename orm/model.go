@@ -17,8 +17,33 @@ type field struct {
 	value any
 }
 
+// 元数据的注册中心
+type registry struct {
+	models map[reflect.Type]*model
+}
+
+func newRegistry() *registry {
+	return &registry{
+		models: make(map[reflect.Type]*model),
+	}
+}
+
+func (r *registry) get(val any) (*model, error) {
+	typ := reflect.TypeOf(val)
+	m, ok := r.models[typ]
+	if !ok {
+		var err error
+		m, err = r.parseModel(val)
+		if err != nil {
+			return nil, err
+		}
+		r.models[typ] = m
+	}
+	return m, nil
+}
+
 // 限制只能使用一级指针
-func parseModel(entity any) (*model, error) {
+func (r *registry) parseModel(entity any) (*model, error) {
 	typ := reflect.TypeOf(entity)
 	// 只支持一级指针
 	if typ.Kind() != reflect.Pointer || typ.Elem().Kind() != reflect.Struct {

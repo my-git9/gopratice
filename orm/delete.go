@@ -13,6 +13,8 @@ type Deleter[T any] struct {
 	where []Predicate
 	sb    *strings.Builder
 	args  []any
+
+	r *registry
 }
 
 func (d *Deleter[T]) Build() (*Query, error) {
@@ -20,7 +22,7 @@ func (d *Deleter[T]) Build() (*Query, error) {
 	//sb := s.sb
 	d.sb = &strings.Builder{}
 	var err error
-	d.model, err = parseModel(new(T))
+	d.model, err = d.r.get(new(T))
 	if err != nil {
 		return nil, err
 	}
@@ -132,14 +134,14 @@ func (d *Deleter[T]) addArg(val any) {
 	d.args = append(d.args, val)
 }
 
-func (s *Deleter[T]) From(table string) *Selector[T] {
-	s.table = table
+func (d *Deleter[T]) From(table string) *Deleter[T] {
+	d.table = table
 	return d
 }
 
 // ids:=[]int{1,2,3}
-func (s *Deleter[T]) Where(ps ...Predicate) *Selector[T] {
-	s.where = ps
+func (d *Deleter[T]) Where(ps ...Predicate) *Deleter[T] {
+	d.where = ps
 	return d
 }
 

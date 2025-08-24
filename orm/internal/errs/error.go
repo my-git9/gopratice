@@ -24,3 +24,7 @@ func NewErrUnknownField(field any) error {
 func NewErrNoCondition() error {
 	return fmt.Errorf("orm: 没有条件")
 }
+
+func NewErrUnknownModel() error {
+	return fmt.Errorf("orm: 未知模型")
+}
