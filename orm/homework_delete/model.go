@@ -8,13 +8,13 @@ import (
 
 type model struct {
 	tableName string
-	fields map[string]*field
+	fields    map[string]*field
 }
 
 type field struct {
 	// 列名
 	colName string
-	value any
+	value   any
 }
 
 // 限制只能使用一级指针
@@ -32,11 +32,11 @@ func parseModel(entity any) (*model, error) {
 		fieldMap[fd.Name] = &field{
 			colName: underscoreName(fd.Name),
 		}
- 	}
-	 return &model{
-		 tableName: underscoreName(typ.Name()),
-		 fields: fieldMap,
-	 }, nil
+	}
+	return &model{
+		tableName: underscoreName(typ.Name()),
+		fields:    fieldMap,
+	}, nil
 }
 
 // underscoreName 驼峰转字符串命名

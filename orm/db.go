@@ -6,7 +6,7 @@ type DB struct {
 	r *registry
 }
 
-func NewDB(opts...DBOption) (*DB, error) {
+func NewDB(opts ...DBOption) (*DB, error) {
 	db := &DB{
 		r: newRegistry(),
 	}
@@ -16,12 +16,10 @@ func NewDB(opts...DBOption) (*DB, error) {
 	return db, nil
 }
 
-func MustNewDB(opts...DBOption) *DB {
+func MustNewDB(opts ...DBOption) *DB {
 	db, err := NewDB(opts...)
 	if err != nil {
 		panic(err)
 	}
 	return db
 }
-
-

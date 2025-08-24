@@ -80,7 +80,7 @@ func (c Column) expr() {}
 // 用法：Not(C("id").Eq(12))
 func Not(p Predicate) Predicate {
 	return Predicate{
-		op:    opNot,
+		op: opNot,
 		right: Predicate{
 			left:  p.left,
 			op:    p.op,

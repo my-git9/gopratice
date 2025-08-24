@@ -7,8 +7,8 @@ import (
 )
 
 type Deleter[T any] struct {
-	table string
-	where []Predicate
+	table   string
+	where   []Predicate
 	builder builder
 }
 
@@ -45,7 +45,7 @@ func (d *Deleter[T]) Build() (*Query, error) {
 	//args := make([]any, 0, len(s.where))
 	if len(d.where) > 0 {
 		sb.WriteString(" WHERE ")
-		if err := d.builder.buildPredicates(d.where); err != nil{
+		if err := d.builder.buildPredicates(d.where); err != nil {
 			return nil, err
 		}
 	}

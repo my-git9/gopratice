@@ -10,7 +10,7 @@ import (
 
 func TestSelector_Build(t *testing.T) {
 	db, err := NewDB()
-	require.NoError(t,  err)
+	require.NoError(t, err)
 
 	testCases := []struct {
 		name    string

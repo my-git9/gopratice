@@ -8,19 +8,19 @@ import (
 
 func Test_parseModel(t *testing.T) {
 	testCases := []struct {
-		name string
+		name   string
 		entity any
 
 		wantModel *model
-		wantErr error
+		wantErr   error
 	}{
 		{
-			name: "struct",
-			entity: TestModel{},
+			name:    "struct",
+			entity:  TestModel{},
 			wantErr: errs.ErrPointerOnly,
 		},
 		{
-			name: "pointer",
+			name:   "pointer",
 			entity: &TestModel{},
 			wantModel: &model{
 				tableName: "test_model",
@@ -50,5 +50,6 @@ func Test_parseModel(t *testing.T) {
 			}
 			assert.Equal(t, tc.wantModel, m)
 		},
-	)
-}}
+		)
+	}
+}

@@ -3,42 +3,83 @@ package orm
 import (
 	"gopratice/orm/internal/errs"
 	"reflect"
+	"sync"
 	"unicode"
 )
 
 type model struct {
 	tableName string
-	fields map[string]*field
+	fields    map[string]*field
 }
 
 type field struct {
 	// 列名
 	colName string
-	value any
+	value   any
 }
 
 // 元数据的注册中心
 type registry struct {
+	// 读写锁
+	lock   sync.RWMutex
 	models map[reflect.Type]*model
+	//models sync.Map
 }
 
+/*
+	func newRegistry() *registry {
+		return &registry{
+			models: make(map[reflect.Type]*model, 64),
+		}
+	}
+*/
 func newRegistry() *registry {
 	return &registry{
-		models: make(map[reflect.Type]*model),
+		models: make(map[reflect.Type]*model, 64),
+		//models: sync.Map{},
 	}
+	//return &registry{}
 }
 
+// 使用线程**安全方式**获取元数据，性能比锁的方式要高
+/*
 func (r *registry) get(val any) (*model, error) {
 	typ := reflect.TypeOf(val)
-	m, ok := r.models[typ]
-	if !ok {
-		var err error
-		m, err = r.parseModel(val)
-		if err != nil {
-			return nil, err
-		}
-		r.models[typ] = m
+	m, ok := r.models.Load(typ)
+	if ok {
+		return m.(*model), nil
 	}
+	m, err := r.parseModel(val)
+	if err != nil {
+		return nil, err
+	}
+	r.models.Store(typ, m)
+	 return m.(*model), nil
+}
+*/
+
+// double check 写法
+func (r *registry) get(val any) (*model, error) {
+	typ := reflect.TypeOf(val)
+	// 读取锁
+	r.lock.RLock()
+	m, ok := r.models[typ]
+	r.lock.RUnlock()
+	if ok {
+		return m, nil
+	}
+	// 写锁
+	r.lock.Lock()
+	defer r.lock.Unlock()
+	m, ok = r.models[typ]
+	if ok {
+		return m, nil
+	}
+	m, err := r.parseModel(val)
+	if err != nil {
+		return nil, err
+	}
+	r.models[typ] = m
 	return m, nil
 }
 
@@ -57,11 +98,11 @@ func (r *registry) parseModel(entity any) (*model, error) {
 		fieldMap[fd.Name] = &field{
 			colName: underscoreName(fd.Name),
 		}
- 	}
-	 return &model{
-		 tableName: underscoreName(typ.Name()),
-		 fields: fieldMap,
-	 }, nil
+	}
+	return &model{
+		tableName: underscoreName(typ.Name()),
+		fields:    fieldMap,
+	}, nil
 }
 
 // underscoreName 驼峰转字符串命名

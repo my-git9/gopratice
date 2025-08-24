@@ -6,8 +6,8 @@ import (
 )
 
 type Selector[T any] struct {
-	table string
-	where []Predicate
+	table   string
+	where   []Predicate
 	builder builder
 }
 
@@ -40,7 +40,7 @@ func (s *Selector[T]) Build() (*Query, error) {
 	//args := make([]any, 0, len(s.where))
 	if len(s.where) > 0 {
 		sb.WriteString(" WHERE ")
-		if err := s.builder.buildPredicates(s.where); err != nil{
+		if err := s.builder.buildPredicates(s.where); err != nil {
 			return nil, err
 		}
 	}

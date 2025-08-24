@@ -54,7 +54,7 @@ func (d *Deleter[T]) Build() (*Query, error) {
 		// p.left 构建好
 		// p.op 构建好
 		// p.right 构建好
-		if err := d.buildExpression(p); err != nil{
+		if err := d.buildExpression(p); err != nil {
 			return nil, err
 		}
 	}

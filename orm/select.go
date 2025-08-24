@@ -19,7 +19,7 @@ type Selector[T any] struct {
 
 func NewSelector[T any](db *DB) *Selector[T] {
 	return &Selector[T]{
-		sb:   &strings.Builder{},
+		sb: &strings.Builder{},
 		db: db,
 	}
 }
@@ -61,7 +61,7 @@ func (s *Selector[T]) Build() (*Query, error) {
 		// p.left 构建好
 		// p.op 构建好
 		// p.right 构建好
-		if err := s.buildExpression(p); err != nil{
+		if err := s.buildExpression(p); err != nil {
 			return nil, err
 		}
 	}
