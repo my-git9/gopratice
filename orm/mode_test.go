@@ -89,6 +89,71 @@ func TestRegistry_get(t *testing.T) {
 			},
 			cacheSize: 1,
 		},
+		{
+			name:   "tag",
+			entity: func() any {
+				type TagTable struct {
+					FirstName string `orm:"column=first_name_t"`
+				}
+				return &TagTable{}
+			}(),
+			wantModel: &model{
+				tableName: "tag_table",
+				fields: map[string]*field{
+					"FirstName": {
+						colName: "first_name_t",
+					},
+				},
+			},
+			cacheSize: 1,
+		},
+		{
+			name:   "empty column",
+			entity: func() any {
+				type TagTable struct {
+					FirstName string `orm:"column="`
+				}
+				return &TagTable{}
+			}(),
+			wantModel: &model{
+				tableName: "tag_table",
+				fields: map[string]*field{
+					"FirstName": {
+						colName: "first_name",
+					},
+				},
+			},
+			cacheSize: 1,
+		},
+		{
+			name:   "column only",
+			entity: func() any {
+				type TagTable struct {
+					FirstName string `orm:"column"`
+				}
+				return &TagTable{}
+			}(),
+			wantErr: errs.NewErrInvaildTagContent("column"),
+			cacheSize: 1,
+		},
+		{
+			name:   "ignore tag",
+			entity: func() any {
+				type TagTable struct {
+					FirstName string `orm:"foo=bar"`
+				}
+				return &TagTable{}
+			}(),
+			wantModel: &model{
+				tableName: "tag_table",
+				fields: map[string]*field{
+					"FirstName": {
+						colName: "first_name",
+					},
+				},
+			},
+			cacheSize: 1,
+		},
 	}
 
 	r := newRegistry()

@@ -28,3 +28,7 @@ func NewErrNoCondition() error {
 func NewErrUnknownModel() error {
 	return fmt.Errorf("orm: 未知模型")
 }
+
+func NewErrInvaildTagContent(pair string) error {
+	return fmt.Errorf("orm: 无效的标签内容: %v", pair)
+}

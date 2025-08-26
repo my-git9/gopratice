@@ -3,8 +3,13 @@ package orm
 import (
 	"gopratice/orm/internal/errs"
 	"reflect"
+	"strings"
 	"sync"
 	"unicode"
+)
+
+const (
+	tagKeyColumn = "column"
 )
 
 type model struct {
@@ -95,8 +100,17 @@ func (r *registry) parseModel(entity any) (*model, error) {
 	fieldMap := make(map[string]*field, numField)
 	for i := 0; i < numField; i++ {
 		fd := typ.Field(i)
+		pair, err := r.parseTag(fd.Tag)
+		if err != nil {
+			return nil, err
+		}
+		colName := pair[tagKeyColumn]
+		if colName == "" {
+			// 没有指定 column
+			colName = underscoreName(fd.Name)
+		}
 		fieldMap[fd.Name] = &field{
-			colName: underscoreName(fd.Name),
+			colName: colName,
 		}
 	}
 	return &model{
@@ -104,6 +118,26 @@ func (r *registry) parseModel(entity any) (*model, error) {
 		fields:    fieldMap,
 	}, nil
 }
+
+func (r *registry) parseTag(tag reflect.StructTag) (map[string]string, error) {
+	ormTag, ok := tag.Lookup("orm")
+	if !ok {
+		return map[string]string{}, nil
+	}
+	pairs := strings.Split(ormTag, ",")
+	res := make(map[string]string, len(pairs))
+	for _, pair := range pairs {
+		segs := strings.Split(pair, "=")
+		if len(segs) != 2 {
+			return nil, errs.NewErrInvaildTagContent(pair)
+		}
+		key := segs[0]
+		val := segs[1]
+		res[key] = val
+	}
+	return res, nil
+}
+
 
 // underscoreName 驼峰转字符串命名
 // 大多数的数据库都是大小写不敏感的，所以这里使用下划线命名
